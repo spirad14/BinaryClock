@@ -226,7 +226,7 @@ void digitalClock(int h, int m, int s){
 }
 
 void readConfig(int *color, int *size, char *symbol){
-    FILE *fp = fopen("C:/Users/Raphael/Desktop/clockconfig.txt","r");
+    FILE *fp = fopen("clockconfig.txt","r");
     int tempi=0;
         if(fp!=NULL){
             fscanf(fp,"%d\n",&tempi);
@@ -291,7 +291,7 @@ void writeConfig(int color, int size, char symbol, HANDLE hConsole, WORD saved_a
          usleep(250000);
     }
 
-    FILE *fp = fopen("C:/Users/Raphael/Desktop/clockconfig.txt","w");
+    FILE *fp = fopen("clockconfig.txt","w");
     fprintf(fp,"%d\n",color);
 
     FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
