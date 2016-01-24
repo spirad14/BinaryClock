@@ -2,6 +2,7 @@
 #include <time.h>
 #include <windows.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 void myClock();
 void printClock(char f[], int color, int size, HANDLE hConsole, WORD saved_attributes);
@@ -9,7 +10,7 @@ void initClock(int *h, int *m, int *s);
 void digitalClock(int h, int m, int s);
 void readConfig(int *color, int *size, char *symbol);
 void writeConfig(int color, int size, char symbol, HANDLE hConsole, WORD saved_attributes);
-void initText(char f[], int h, int m, int s, char symbol, int size);
+void initText(char f[], int h, int m, int s, char symbol);
 
 int main(void)
 {
@@ -31,17 +32,18 @@ void myClock(){
   saved_attributes = consoleInfo.wAttributes;
 
   while(loop){
-    if(GetAsyncKeyState(27)){
+    if(GetAsyncKeyState(VK_ESCAPE)){
       break;
     }
-    if(GetAsyncKeyState(67)){
+    if(GetAsyncKeyState('C')){
         writeConfig(color, size, symbol, hConsole, saved_attributes);
-        FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+        GetAsyncKeyState(VK_SPACE); //Clear
+        GetAsyncKeyState('C');//Clear
     }
       readConfig(&color, &size, &symbol);
       initClock(&h,&m,&s);
-      char f[68]={};
-      initText(f,h,m,s,symbol,size);
+      char f[17]={};
+      initText(f,h,m,s,symbol);
       system("cls");
       digitalClock(h,m,s);
       printClock(f,color,size,hConsole,saved_attributes);
@@ -58,34 +60,28 @@ void initClock(int *h, int *m, int *s){
   *s = time->tm_sec;
 }
 
-void initText(char f[], int h, int m, int s, char symbol, int size){
-    int i=0, j=0, tempi=0;
-    for(i=0, tempi=32; i<20; i+=4,tempi/=2){
+void initText(char f[], int h, int m, int s, char symbol){
+    int i=0, tempi=0;
+    for(i=0, tempi=32; i<5; i++,tempi/=2){
         if(h%tempi/(tempi/2)){
-            for(j=i;j<i+size;j++){
-                f[j]=symbol;
-            }
+            f[i]=symbol;
         }
     }
-    for(tempi=64; i<44; i+=4, tempi/=2){
+    for(tempi=64; i<11; i++, tempi/=2){
         if(m%tempi/(tempi/2)){
-            for(j=i;j<i+size;j++){
-                f[j]=symbol;
-            }
+            f[i]=symbol;
         }
     }
-    for(tempi=64; i<68; i+=4, tempi/=2){
+    for(tempi=64; i<17; i++, tempi/=2){
         if(s%tempi/(tempi/2)){
-            for(j=i;j<i+size;j++){
-                f[j]=symbol;
-            }
+            f[i]=symbol;
         }
     }
 }
 
 void printClock(char f[], int color, int size, HANDLE hConsole, WORD saved_attributes){
   WORD farbe;
-  int i=0;
+  int i=0, j=0;
   switch(color){
     case 1:
         farbe=15;   //Weiss
@@ -100,55 +96,155 @@ void printClock(char f[], int color, int size, HANDLE hConsole, WORD saved_attri
         farbe=14;   //Gelb
         break;
     default:
-        farbe=0;    //Standard
+        farbe=7;    //Standard
         break;
   }
-  printf("Binaere-Uhr:\n");
-  for(i=0; i<size; i++){
-      printf("H\t        ");
+  printf("Binaere-Uhr:\n\n");
+  for(j=0; j<size; j++) {
+      printf("H\t    ");
+      for(i=0; i<size; i++){
+          printf(" ");
+      }
+      printf("|");
       SetConsoleTextAttribute(hConsole, farbe);
-      printf("|%c%c%c%c|\t|%c%c%c%c|\t|%c%c%c%c|\t|%c%c%c%c|\t|%c%c%c%c|\n",
-              f[0],f[1],f[2],f[3],f[4],f[5],f[6],f[7],f[8],f[9],f[10],f[11],
-              f[12],f[13],f[14],f[15],f[16],f[17],f[18],f[19]);
+      for(i=0; i<size; i++){
+          printf("%c",f[0]);
+      }
       SetConsoleTextAttribute(hConsole, saved_attributes);
-  }
-  for(i=0; i<size; i++){
-      printf("M\t");
+      printf("|  |");
       SetConsoleTextAttribute(hConsole, farbe);
-      printf("|%c%c%c%c|\t|%c%c%c%c|\t|%c%c%c%c|\t|%c%c%c%c|\t|%c%c%c%c|\t|%c%c%c%c|\n",
-              f[20],f[21],f[22],f[23],f[24],f[25],f[26],f[27],f[28],f[29],f[30],f[31],f[32],
-              f[33],f[34],f[35],f[36],f[37],f[38],f[39],f[40],f[41],f[42],f[43]);
+      for(i=0; i<size; i++){
+          printf("%c",f[1]);
+      }
       SetConsoleTextAttribute(hConsole, saved_attributes);
-  }
-  for(i=0; i<size; i++){
-      printf("S\t");
+      printf("|  |");
       SetConsoleTextAttribute(hConsole, farbe);
-      printf("|%c%c%c%c|\t|%c%c%c%c|\t|%c%c%c%c|\t|%c%c%c%c|\t|%c%c%c%c|\t|%c%c%c%c|\n",
-             f[44],f[45],f[46],f[47],f[48],f[49],f[50],f[51],f[52],f[53],f[54],f[55],f[56],
-             f[57],f[58],f[59],f[60],f[61],f[62],f[63],f[64],f[65],f[66],f[67]);
+      for(i=0; i<size; i++){
+          printf("%c",f[2]);
+      }
       SetConsoleTextAttribute(hConsole, saved_attributes);
+      printf("|  |");
+      SetConsoleTextAttribute(hConsole, farbe);
+      for(i=0; i<size; i++){
+          printf("%c",f[3]);
+      }
+      SetConsoleTextAttribute(hConsole, saved_attributes);
+      printf("|  |");
+      SetConsoleTextAttribute(hConsole, farbe);
+      for(i=0; i<size; i++){
+          printf("%c",f[4]);
+      }
+      SetConsoleTextAttribute(hConsole, saved_attributes);
+      printf("|\n");
   }
+  printf("\n");
+  for(j=0; j<size; j++) {
+      printf("M\t|");
+      SetConsoleTextAttribute(hConsole, farbe);
+      for(i=0; i<size; i++){
+          printf("%c",f[5]);
+      }
+      SetConsoleTextAttribute(hConsole, saved_attributes);
+      printf("|  |");
+      SetConsoleTextAttribute(hConsole, farbe);
+      for(i=0; i<size; i++){
+          printf("%c",f[6]);
+      }
+      SetConsoleTextAttribute(hConsole, saved_attributes);
+      printf("|  |");
+      SetConsoleTextAttribute(hConsole, farbe);
+      for(i=0; i<size; i++){
+          printf("%c",f[7]);
+      }
+      SetConsoleTextAttribute(hConsole, saved_attributes);
+      printf("|  |");
+      SetConsoleTextAttribute(hConsole, farbe);
+      for(i=0; i<size; i++){
+          printf("%c",f[8]);
+      }
+      SetConsoleTextAttribute(hConsole, saved_attributes);
+      printf("|  |");
+      SetConsoleTextAttribute(hConsole, farbe);
+      for(i=0; i<size; i++){
+          printf("%c",f[9]);
+      }
+      SetConsoleTextAttribute(hConsole, saved_attributes);
+      printf("|  |");
+      SetConsoleTextAttribute(hConsole, farbe);
+      for(i=0; i<size; i++){
+          printf("%c",f[10]);
+      }
+      SetConsoleTextAttribute(hConsole, saved_attributes);
+      printf("|\n");
+  }
+  printf("\n");
+  for(j=0; j<size; j++) {
+      printf("S\t|");
+      SetConsoleTextAttribute(hConsole, farbe);
+      for(i=0; i<size; i++){
+          printf("%c",f[11]);
+      }
+      SetConsoleTextAttribute(hConsole, saved_attributes);
+      printf("|  |");
+      SetConsoleTextAttribute(hConsole, farbe);
+      for(i=0; i<size; i++){
+          printf("%c",f[12]);
+      }
+      SetConsoleTextAttribute(hConsole, saved_attributes);
+      printf("|  |");
+      SetConsoleTextAttribute(hConsole, farbe);
+      for(i=0; i<size; i++){
+          printf("%c",f[13]);
+      }
+      SetConsoleTextAttribute(hConsole, saved_attributes);
+      printf("|  |");
+      SetConsoleTextAttribute(hConsole, farbe);
+      for(i=0; i<size; i++){
+          printf("%c",f[14]);
+      }
+      SetConsoleTextAttribute(hConsole, saved_attributes);
+      printf("|  |");
+      SetConsoleTextAttribute(hConsole, farbe);
+      for(i=0; i<size; i++){
+          printf("%c",f[15]);
+      }
+      SetConsoleTextAttribute(hConsole, saved_attributes);
+      printf("|  |");
+      SetConsoleTextAttribute(hConsole, farbe);
+      for(i=0; i<size; i++){
+          printf("%c",f[16]);
+      }
+      SetConsoleTextAttribute(hConsole, saved_attributes);
+      printf("|\n");
+  }
+  printf("\n");
   printf("\nESC druecken zum Verlassen...");
 }
 
 void digitalClock(int h, int m, int s){
-  printf("Digitale-Uhr:\n");
   printf("Stunden: %d\tMinuten: %d\tSekunden: %d\n\n\n",h,m,s);
 }
 
 void readConfig(int *color, int *size, char *symbol){
     FILE *fp = fopen("C:/Users/Raphael/Desktop/clockconfig.txt","r");
+    int tempi=0;
         if(fp!=NULL){
-            fscanf(fp,"%d\n",color);
-            if(*color<1&&*color>4){
+            fscanf(fp,"%d\n",&tempi);
+            if(tempi<1||tempi>4){
                 *color=1;
+            }
+            else{
+                *color=tempi;
             }
             fflush(stdin);
             fscanf(fp,"%c\n",symbol);
             fflush(stdin);
-            fscanf(fp,"%d\n",size);
-            if(*size<1&&*size>4){
+            fscanf(fp,"%d\n",&tempi);
+            if(tempi<1||tempi>5){
                 *size=1;
+            }
+            else{
+                *size=tempi;
             }
             fflush(stdin);
         }
@@ -157,8 +253,8 @@ void readConfig(int *color, int *size, char *symbol){
 
 void writeConfig(int color, int size, char symbol, HANDLE hConsole, WORD saved_attributes){
     int loop=1;
-
-    while(!GetAsyncKeyState(13)){
+    while(!GetAsyncKeyState(VK_RETURN)){
+        fflush(stdin);
          system("cls");
          char w=' ', r=' ', gr=' ', g=' ';
          if(GetAsyncKeyState(VK_UP)&&(color>=2)){
@@ -196,7 +292,6 @@ void writeConfig(int color, int size, char symbol, HANDLE hConsole, WORD saved_a
     }
 
     FILE *fp = fopen("C:/Users/Raphael/Desktop/clockconfig.txt","w");
-    //fprintf(fp,"//This file is Computer Generated\n");
     fprintf(fp,"%d\n",color);
 
     FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
@@ -209,14 +304,14 @@ void writeConfig(int color, int size, char symbol, HANDLE hConsole, WORD saved_a
 
     while(loop){
         system("cls");
-        printf("Bitte Groesse des Symbol-Feldes eingeben (1-4): ");
+        printf("Bitte Groesse des Symbol-Feldes eingeben (1-5): ");
         char c=getchar();
-        if(c>='1'&&c<='4'){
+        if(c>='1'&&c<='5'){
           size=c-48;
           fprintf(fp,"%d",size);
           break;
         }
     }
-    fflush(stdin);
+    fprintf(fp,"\n//This file is Computer Generated\n");
     fclose(fp);
 }
